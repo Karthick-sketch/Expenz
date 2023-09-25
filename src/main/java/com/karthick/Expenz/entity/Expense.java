@@ -17,6 +17,7 @@ public class Expense {
     private String category;
     private String expenseType;
     private Date dateAdded;
+    private long userId;
 
     public long getId() {
         return id;
@@ -72,6 +73,14 @@ public class Expense {
 
     public void setCategory(String category) {
         this.category = category;
+    }
+
+    public long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(long userId) {
+        this.userId = userId;
     }
 
     public void setExpense(Expense expense) {

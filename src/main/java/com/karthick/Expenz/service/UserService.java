@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.ReflectionUtils;
 
 import java.lang.reflect.Field;
-import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -19,8 +18,10 @@ public class UserService {
     @Autowired
     private UserRepository userRepository;
 
-    public List<User> findAllUsers() {
-        return userRepository.findAll();
+    public ApiResponse findAllUsers() {
+        ApiResponse apiResponse = new ApiResponse();
+        apiResponse.setData(userRepository.findAll());
+        return apiResponse;
     }
 
     public ApiResponse findUserById(long id) {
@@ -64,7 +65,20 @@ public class UserService {
         return apiResponse;
     }
 
-    public void deleteUserById(long id) {
-        userRepository.deleteById(id);
+    public ApiResponse deleteUserById(long id) {
+        Optional<User> user = userRepository.findById(id);
+        if (user.isEmpty()) {
+            throw new NoSuchElementException("expecting user is not found");
+        }
+
+        userRepository.delete(user.get());
+        ApiResponse apiResponse = new ApiResponse();
+        if (userRepository.findById(id).isEmpty()) {
+            apiResponse.setData("user has been deleted");
+        } else {
+            throw new BadRequestException("problem with deleting the user");
+        }
+
+        return apiResponse;
     }
 }

@@ -1,4 +1,5 @@
 HELP.md
+dump.rdb
 .gradle
 build/
 !gradle/wrapper/gradle-wrapper.jar

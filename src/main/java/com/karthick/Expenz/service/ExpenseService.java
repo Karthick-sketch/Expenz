@@ -3,7 +3,6 @@ package com.karthick.Expenz.service;
 import com.karthick.Expenz.common.ApiResponse;
 import com.karthick.Expenz.common.RedisCache;
 import com.karthick.Expenz.entity.Expense;
-import com.karthick.Expenz.entity.User;
 import com.karthick.Expenz.exception.BadRequestException;
 import com.karthick.Expenz.repository.ExpenseRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -80,7 +79,7 @@ public class ExpenseService {
 
         ApiResponse apiResponse = new ApiResponse();
         fields.forEach((key, value) -> {
-            Field field = ReflectionUtils.findField(User.class, key);
+            Field field = ReflectionUtils.findField(Expense.class, key);
             if (field != null) {
                 field.setAccessible(true);
                 ReflectionUtils.setField(field, expense.get(), value);

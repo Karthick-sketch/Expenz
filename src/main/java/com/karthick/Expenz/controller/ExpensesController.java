@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @RestController
 public class ExpensesController {
     @Autowired
@@ -37,7 +39,7 @@ public class ExpensesController {
     }
 
     @PatchMapping("/expense/{id}")
-    public ResponseEntity<ApiResponse> updateExpenseById(@PathVariable("id") long id, @RequestBody Expense newData) {
+    public ResponseEntity<ApiResponse> updateExpenseById(@PathVariable("id") long id, @RequestBody Map<String, Object> newData) {
         ApiResponse apiResponse = expenseService.updateExpenseById(id, newData);
         return ResponseEntity.status(apiResponse.getStatus()).body(apiResponse);
     }

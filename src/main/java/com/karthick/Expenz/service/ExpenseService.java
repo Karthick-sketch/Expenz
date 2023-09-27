@@ -3,11 +3,15 @@ package com.karthick.Expenz.service;
 import com.karthick.Expenz.common.ApiResponse;
 import com.karthick.Expenz.common.RedisCache;
 import com.karthick.Expenz.entity.Expense;
+import com.karthick.Expenz.entity.User;
 import com.karthick.Expenz.exception.BadRequestException;
 import com.karthick.Expenz.repository.ExpenseRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ReflectionUtils;
 
+import java.lang.reflect.Field;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
@@ -68,16 +72,21 @@ public class ExpenseService {
         return apiResponse;
     }
 
-    public ApiResponse updateExpenseById(long id, Expense updatedExpense) {
+    public ApiResponse updateExpenseById(long id, Map<String, Object> fields) {
         Optional<Expense> expense = expenseRepository.findById(id);
         if (expense.isEmpty()) {
             throw new NoSuchElementException("expecting expense is not found");
         }
-        Expense expense1 = expense.get();
-        expense1.setExpense(updatedExpense);
 
         ApiResponse apiResponse = new ApiResponse();
-        apiResponse.setData(expenseRepository.save(expense1));
+        fields.forEach((key, value) -> {
+            Field field = ReflectionUtils.findField(User.class, key);
+            if (field != null) {
+                field.setAccessible(true);
+                ReflectionUtils.setField(field, expense.get(), value);
+            }
+        });
+        apiResponse.setData(expenseRepository.save(expense.get()));
         redisCache.deleteCachedData("expense:" + id);
         return apiResponse;
     }

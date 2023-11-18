@@ -14,7 +14,7 @@ public class ExpensesController {
     @Autowired
     private ExpenseService expenseService;
 
-    @GetMapping("/expenses")
+    @GetMapping("/expense")
     public ResponseEntity<ApiResponse> getAllExpenses() {
         ApiResponse apiResponse = expenseService.findAllExpenses();
         return ResponseEntity.status(apiResponse.getStatus()).body(apiResponse);
@@ -26,9 +26,9 @@ public class ExpensesController {
         return ResponseEntity.status(apiResponse.getStatus()).body(apiResponse);
     }
 
-    @GetMapping("/expenses/user/{user-id}")
+    @GetMapping("/expense/user/{user-id}")
     public ResponseEntity<ApiResponse> getExpensesByUserId(@PathVariable("user-id") long userId) {
-        ApiResponse apiResponse = expenseService.findExpensesByUserId(userId);
+        ApiResponse apiResponse = new ApiResponse(expenseService.findExpensesByUserId(userId));
         return ResponseEntity.status(apiResponse.getStatus()).body(apiResponse);
     }
 
@@ -40,7 +40,7 @@ public class ExpensesController {
 
     @PatchMapping("/expense/{id}")
     public ResponseEntity<ApiResponse> updateExpenseById(@PathVariable("id") long id, @RequestBody Map<String, Object> newData) {
-        ApiResponse apiResponse = expenseService.updateExpenseById(id, newData);
+        ApiResponse apiResponse = new ApiResponse(expenseService.updateExpenseById(id, newData));
         return ResponseEntity.status(apiResponse.getStatus()).body(apiResponse);
     }
 

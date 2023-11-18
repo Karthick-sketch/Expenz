@@ -4,10 +4,11 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 
+import java.io.Serializable;
 import java.util.Date;
 
 @Entity(name = "expenses")
-public class Expense {
+public class Expense implements Serializable {
     @Id
     @GeneratedValue
     private long id;
@@ -15,7 +16,7 @@ public class Expense {
     private String title;
     private String description;
     private String category;
-    private String expenseType;
+    private boolean income;
     private Date dateAdded;
     private long userId;
 
@@ -51,12 +52,12 @@ public class Expense {
         this.description = description;
     }
 
-    public String getExpenseType() {
-        return expenseType;
+    public boolean isIncome() {
+        return income;
     }
 
-    public void setExpenseType(String expenseType) {
-        this.expenseType = expenseType;
+    public void setIncome(boolean income) {
+        this.income = income;
     }
 
     public Date getDateAdded() {
@@ -81,13 +82,5 @@ public class Expense {
 
     public void setUserId(long userId) {
         this.userId = userId;
-    }
-
-    public void setExpense(Expense expense) {
-        amount = expense.getAmount();
-        description = expense.getDescription();
-        category = expense.getCategory();
-        expenseType = expense.getExpenseType();
-        dateAdded = expense.getDateAdded();
     }
 }

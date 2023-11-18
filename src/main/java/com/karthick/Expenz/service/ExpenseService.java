@@ -1,15 +1,17 @@
 package com.karthick.Expenz.service;
 
 import com.karthick.Expenz.common.ApiResponse;
-import com.karthick.Expenz.common.RedisCache;
 import com.karthick.Expenz.entity.Expense;
 import com.karthick.Expenz.exception.BadRequestException;
 import com.karthick.Expenz.repository.ExpenseRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ReflectionUtils;
 
 import java.lang.reflect.Field;
+import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -19,9 +21,6 @@ public class ExpenseService {
     @Autowired
     private ExpenseRepository expenseRepository;
 
-    @Autowired
-    private RedisCache redisCache;
-
     public ApiResponse findAllExpenses() {
         ApiResponse apiResponse = new ApiResponse();
         apiResponse.setData(expenseRepository.findAll());
@@ -30,35 +29,17 @@ public class ExpenseService {
 
     public ApiResponse findExpensesById(long id) {
         ApiResponse apiResponse = new ApiResponse();
-        Object cachedData = redisCache.retrieveDateFromCache("expense:" + id);
-        if (cachedData != null) {
-            apiResponse.setData(cachedData);
-            System.out.println("From Cache");
-        } else {
-            Optional<Expense> expense = expenseRepository.findById(id);
-            if (expense.isEmpty()) {
-                throw new NoSuchElementException("expecting expense is not found");
-            }
-            apiResponse.setData(expense.get());
-            redisCache.cacheData(("expense:" + id), expense.get());
-            System.out.println("From Database");
+        Optional<Expense> expense = expenseRepository.findById(id);
+        if (expense.isEmpty()) {
+            throw new NoSuchElementException("expecting expense is not found");
         }
+        apiResponse.setData(expense.get());
         return apiResponse;
     }
 
-    public ApiResponse findExpensesByUserId(long userId) {
-        ApiResponse apiResponse = new ApiResponse();
-        Object cachedData = redisCache.retrieveDateFromCache("user-expenses:" + userId);
-        if (cachedData != null) {
-            apiResponse.setData(cachedData);
-            System.out.println("From Cache");
-        } else {
-            Object newData = expenseRepository.findByUserId(userId);
-            apiResponse.setData(newData);
-            redisCache.cacheData(("user-expenses:" + userId), newData);
-            System.out.println("From Database");
-        }
-        return apiResponse;
+    @Cacheable(value = "expenses:user", key = "#userId")
+    public List<Expense> findExpensesByUserId(long userId) {
+        return expenseRepository.findByUserId(userId);
     }
 
     public ApiResponse createNewExpense(Expense expense) {
@@ -71,13 +52,12 @@ public class ExpenseService {
         return apiResponse;
     }
 
-    public ApiResponse updateExpenseById(long id, Map<String, Object> fields) {
+    public Expense updateExpenseById(long id, Map<String, Object> fields) {
         Optional<Expense> expense = expenseRepository.findById(id);
         if (expense.isEmpty()) {
             throw new NoSuchElementException("expecting expense is not found");
         }
 
-        ApiResponse apiResponse = new ApiResponse();
         fields.forEach((key, value) -> {
             Field field = ReflectionUtils.findField(Expense.class, key);
             if (field != null) {
@@ -85,11 +65,11 @@ public class ExpenseService {
                 ReflectionUtils.setField(field, expense.get(), value);
             }
         });
-        apiResponse.setData(expenseRepository.save(expense.get()));
-        redisCache.deleteCachedData("expense:" + id);
-        return apiResponse;
+        return expenseRepository.save(expense.get());
     }
 
+    // don't know the ID of the user in the delete request.
+    // @CacheEvict(value = "expenses:user", key = "#userId")
     public ApiResponse deleteExpenseById(long id) {
         Optional<Expense> expense = expenseRepository.findById(id);
         if (expense.isEmpty()) {
@@ -99,7 +79,6 @@ public class ExpenseService {
         expenseRepository.delete(expense.get());
         ApiResponse apiResponse = new ApiResponse();
         if (expenseRepository.findById(id).isEmpty()) {
-            redisCache.deleteCachedData("expense:" + id);
             apiResponse.setData("expense has been deleted");
         } else {
             throw new BadRequestException("problem with deleting the expense");

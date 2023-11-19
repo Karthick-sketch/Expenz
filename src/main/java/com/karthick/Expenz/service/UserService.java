@@ -5,6 +5,7 @@ import com.karthick.Expenz.entity.User;
 import com.karthick.Expenz.exception.BadRequestException;
 import com.karthick.Expenz.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ReflectionUtils;
 
@@ -17,6 +18,9 @@ import java.util.Optional;
 public class UserService {
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     public ApiResponse findAllUsers() {
         ApiResponse apiResponse = new ApiResponse();
@@ -37,6 +41,7 @@ public class UserService {
     public ApiResponse createNewUser(User user) {
         ApiResponse apiResponse = new ApiResponse();
         try {
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
             apiResponse.setData(userRepository.save(user));
         } catch (AssertionError e) {
             throw new BadRequestException(e.getMessage());

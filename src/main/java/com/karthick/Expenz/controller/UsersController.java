@@ -14,7 +14,7 @@ public class UsersController {
     @Autowired
     private UserService userService;
 
-    @GetMapping("/users")
+    @GetMapping("/user")
     public ResponseEntity<ApiResponse> getAllUsers() {
         ApiResponse apiResponse = userService.findAllUsers();
         return ResponseEntity.status(apiResponse.getStatus()).body(apiResponse);

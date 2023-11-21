@@ -1,12 +1,14 @@
 package com.karthick.Expenz.service;
 
 import com.karthick.Expenz.common.ApiResponse;
+import com.karthick.Expenz.common.Constants;
 import com.karthick.Expenz.entity.Expense;
 import com.karthick.Expenz.exception.BadRequestException;
 import com.karthick.Expenz.repository.ExpenseRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ReflectionUtils;
 
@@ -21,18 +23,20 @@ public class ExpenseService {
     @Autowired
     private ExpenseRepository expenseRepository;
 
-    public ApiResponse findExpensesById(long id) {
-        ApiResponse apiResponse = new ApiResponse();
+    @Cacheable(value = "expense", key = "#id")
+    public Expense findExpensesById(long id, long userId) {
         Optional<Expense> expense = expenseRepository.findById(id);
-        if (expense.isEmpty()) {
+        if (expense.isEmpty() || expense.get().getUserId() != userId) {
             throw new NoSuchElementException("expecting expense is not found");
         }
-        apiResponse.setData(expense.get());
-        return apiResponse;
+        return expense.get();
     }
 
     @Cacheable(value = "expenses:user", key = "#userId")
     public List<Expense> getExpensesByUsedId(long userId) {
+        if (userId == Constants.NOT_FOUND) {
+            throw new RuntimeException("something wrong at authentication");
+        }
         return expenseRepository.findByUserId(userId);
     }
 
@@ -46,10 +50,13 @@ public class ExpenseService {
         return apiResponse;
     }
 
-    @CacheEvict(value = "expenses:user", key = "#userId")
+    @Caching(evict = {
+        @CacheEvict(value = "expenses:user", key = "#userId"),
+        @CacheEvict(value = "expense", key = "#id")
+    })
     public ApiResponse updateExpenseById(long id, Map<String, Object> fields, long userId) {
         Optional<Expense> expense = expenseRepository.findById(id);
-        if (expense.isEmpty() || expense.get().getId() != userId) {
+        if (expense.isEmpty() || expense.get().getUserId() != userId) {
             throw new NoSuchElementException("expecting expense is not found");
         }
 
@@ -66,10 +73,13 @@ public class ExpenseService {
         return apiResponse;
     }
 
-    @CacheEvict(value = "expenses:user", key = "#userId")
+    @Caching(evict = {
+        @CacheEvict(value = "expenses:user", key = "#userId"),
+        @CacheEvict(value = "expense", key = "#id")
+    })
     public ApiResponse deleteExpenseById(long id, long userId) {
         Optional<Expense> expense = expenseRepository.findById(id);
-        if (expense.isEmpty() || expense.get().getId() != userId) {
+        if (expense.isEmpty() || expense.get().getUserId() != userId) {
             throw new NoSuchElementException("expecting expense is not found");
         }
 

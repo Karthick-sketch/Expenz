@@ -27,7 +27,8 @@ public class ExpensesController {
 
     @GetMapping("/expense/{id}")
     public ResponseEntity<ApiResponse> getExpensesById(@PathVariable("id") long id) {
-        ApiResponse apiResponse = expenseService.findExpensesById(id);
+        ApiResponse apiResponse = new ApiResponse();
+        apiResponse.setData(expenseService.findExpensesById(id, userSession.getAuthenticatedUserId()));
         return ResponseEntity.status(apiResponse.getStatus()).body(apiResponse);
     }
 

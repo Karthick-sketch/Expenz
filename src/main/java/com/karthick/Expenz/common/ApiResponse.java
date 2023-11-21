@@ -11,12 +11,6 @@ public class ApiResponse {
         this.error = null;
     }
 
-    public ApiResponse(Object data) {
-        this.status = 200;
-        this.data = data;
-        this.error = null;
-    }
-
     public int getStatus() {
         return status;
     }

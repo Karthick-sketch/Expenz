@@ -15,20 +15,14 @@ public class ExpensesController {
     private ExpenseService expenseService;
 
     @GetMapping("/expense")
-    public ResponseEntity<ApiResponse> getAllExpenses() {
-        ApiResponse apiResponse = expenseService.findAllExpenses();
+    public ResponseEntity<ApiResponse> getUserExpenses() {
+        ApiResponse apiResponse = expenseService.getExpenses();
         return ResponseEntity.status(apiResponse.getStatus()).body(apiResponse);
     }
 
     @GetMapping("/expense/{id}")
     public ResponseEntity<ApiResponse> getExpensesById(@PathVariable("id") long id) {
         ApiResponse apiResponse = expenseService.findExpensesById(id);
-        return ResponseEntity.status(apiResponse.getStatus()).body(apiResponse);
-    }
-
-    @GetMapping("/expense/user/{user-id}")
-    public ResponseEntity<ApiResponse> getExpensesByUserId(@PathVariable("user-id") long userId) {
-        ApiResponse apiResponse = new ApiResponse(expenseService.findExpensesByUserId(userId));
         return ResponseEntity.status(apiResponse.getStatus()).body(apiResponse);
     }
 
@@ -40,7 +34,7 @@ public class ExpensesController {
 
     @PatchMapping("/expense/{id}")
     public ResponseEntity<ApiResponse> updateExpenseById(@PathVariable("id") long id, @RequestBody Map<String, Object> newData) {
-        ApiResponse apiResponse = new ApiResponse(expenseService.updateExpenseById(id, newData));
+        ApiResponse apiResponse = expenseService.updateExpenseById(id, newData);
         return ResponseEntity.status(apiResponse.getStatus()).body(apiResponse);
     }
 

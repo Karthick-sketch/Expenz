@@ -10,10 +10,12 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class UserDetailsImp implements UserDetails {
+    private final long id;
     private final String username;
     private final String password;
 
     public UserDetailsImp(User user) {
+        this.id = user.getId();
         this.username = user.getUsername();
         this.password = user.getPassword();
     }
@@ -23,6 +25,10 @@ public class UserDetailsImp implements UserDetails {
         Set<GrantedAuthority> authorities = new HashSet<>();
         authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
         return authorities;
+    }
+
+    public long getId() {
+        return this.id;
     }
 
     @Override

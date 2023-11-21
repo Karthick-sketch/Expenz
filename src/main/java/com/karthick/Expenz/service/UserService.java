@@ -5,6 +5,8 @@ import com.karthick.Expenz.entity.User;
 import com.karthick.Expenz.exception.BadRequestException;
 import com.karthick.Expenz.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ReflectionUtils;
@@ -28,14 +30,13 @@ public class UserService {
         return apiResponse;
     }
 
-    public ApiResponse findUserById(long id) {
-        ApiResponse apiResponse = new ApiResponse();
+    @Cacheable(value = "user", key = "#id")
+    public User findUserById(long id) {
         Optional<User> user = userRepository.findById(id);
         if (user.isEmpty()) {
             throw new NoSuchElementException("expecting user is not found");
         }
-        apiResponse.setData(user.get());
-        return apiResponse;
+        return user.get();
     }
 
     public ApiResponse createNewUser(User user) {
@@ -49,6 +50,7 @@ public class UserService {
         return apiResponse;
     }
 
+    @CacheEvict(value = "user", key = "#id")
     public ApiResponse updateUserByFields(long id, Map<String, Object> fields) {
         Optional<User> user = userRepository.findById(id);
         if (user.isEmpty()) {
@@ -70,6 +72,7 @@ public class UserService {
         return apiResponse;
     }
 
+    @CacheEvict(value = "user", key = "#id")
     public ApiResponse deleteUserById(long id) {
         Optional<User> user = userRepository.findById(id);
         if (user.isEmpty()) {

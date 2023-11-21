@@ -22,7 +22,8 @@ public class UsersController {
 
     @GetMapping("/user/{user-id}")
     public ResponseEntity<ApiResponse> getUserById(@PathVariable("user-id") long id) {
-        ApiResponse apiResponse = userService.findUserById(id);
+        ApiResponse apiResponse = new ApiResponse();
+        apiResponse.setData(userService.findUserById(id));
         return ResponseEntity.status(apiResponse.getStatus()).body(apiResponse);
     }
 

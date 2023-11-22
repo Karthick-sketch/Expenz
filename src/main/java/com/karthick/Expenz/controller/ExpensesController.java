@@ -34,19 +34,22 @@ public class ExpensesController {
 
     @PostMapping("/expense")
     public ResponseEntity<ApiResponse> createNewExpense(@RequestBody Expense expense) {
-        ApiResponse apiResponse = expenseService.createNewExpense(expense);
+        ApiResponse apiResponse = new ApiResponse();
+        apiResponse.setData(expenseService.createNewExpense(expense));
         return ResponseEntity.status(apiResponse.getStatus()).body(apiResponse);
     }
 
     @PatchMapping("/expense/{id}")
     public ResponseEntity<ApiResponse> updateExpenseById(@PathVariable("id") long id, @RequestBody Map<String, Object> newData) {
-        ApiResponse apiResponse = expenseService.updateExpenseById(id, newData, userSession.getAuthenticatedUserId());
+        ApiResponse apiResponse = new ApiResponse();
+        apiResponse.setData(expenseService.updateExpenseById(id, newData, userSession.getAuthenticatedUserId()));
         return ResponseEntity.status(apiResponse.getStatus()).body(apiResponse);
     }
 
     @DeleteMapping("/expense/{id}")
     public ResponseEntity<ApiResponse> deleteExpenseById(@PathVariable("id") long id) {
-        ApiResponse apiResponse = expenseService.deleteExpenseById(id, userSession.getAuthenticatedUserId());
+        ApiResponse apiResponse = new ApiResponse();
+        apiResponse.setData(expenseService.deleteExpenseById(id, userSession.getAuthenticatedUserId()));
         return ResponseEntity.status(apiResponse.getStatus()).body(apiResponse);
     }
 }

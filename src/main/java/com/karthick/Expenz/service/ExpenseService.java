@@ -1,6 +1,5 @@
 package com.karthick.Expenz.service;
 
-import com.karthick.Expenz.common.ApiResponse;
 import com.karthick.Expenz.common.Constants;
 import com.karthick.Expenz.entity.Expense;
 import com.karthick.Expenz.exception.BadRequestException;
@@ -40,57 +39,48 @@ public class ExpenseService {
         return expenseRepository.findByUserId(userId);
     }
 
-    public ApiResponse createNewExpense(Expense expense) {
-        ApiResponse apiResponse = new ApiResponse();
+    public Expense createNewExpense(Expense expense) {
         try {
-            apiResponse.setData(expenseRepository.save(expense));
-        } catch (Exception ex) {
+            return expenseRepository.save(expense);
+        } catch (IllegalArgumentException ex) {
             throw new BadRequestException(ex.getMessage());
         }
-        return apiResponse;
     }
 
     @Caching(evict = {
         @CacheEvict(value = "expenses:user", key = "#userId"),
         @CacheEvict(value = "expense", key = "#id")
     })
-    public ApiResponse updateExpenseById(long id, Map<String, Object> fields, long userId) {
+    public Expense updateExpenseById(long id, Map<String, Object> fields, long userId) {
         Optional<Expense> expense = expenseRepository.findById(id);
         if (expense.isEmpty() || expense.get().getUserId() != userId) {
             throw new NoSuchElementException("expecting expense is not found");
         }
 
-        fields.forEach((key, value) -> {
-            Field field = ReflectionUtils.findField(Expense.class, key);
-            if (field != null) {
-                field.setAccessible(true);
-                ReflectionUtils.setField(field, expense.get(), value);
-            }
-        });
-
-        ApiResponse apiResponse = new ApiResponse();
-        apiResponse.setData(expenseRepository.save(expense.get()));
-        return apiResponse;
+        try {
+            fields.forEach((key, value) -> {
+                Field field = ReflectionUtils.findField(Expense.class, key);
+                if (field != null) {
+                    field.setAccessible(true);
+                    ReflectionUtils.setField(field, expense.get(), value);
+                }
+            });
+            return expenseRepository.save(expense.get());
+        } catch (IllegalArgumentException ex) {
+            throw new BadRequestException(ex.getMessage());
+        }
     }
 
     @Caching(evict = {
         @CacheEvict(value = "expenses:user", key = "#userId"),
         @CacheEvict(value = "expense", key = "#id")
     })
-    public ApiResponse deleteExpenseById(long id, long userId) {
+    public String deleteExpenseById(long id, long userId) {
         Optional<Expense> expense = expenseRepository.findById(id);
         if (expense.isEmpty() || expense.get().getUserId() != userId) {
             throw new NoSuchElementException("expecting expense is not found");
         }
-
         expenseRepository.delete(expense.get());
-        ApiResponse apiResponse = new ApiResponse();
-        if (expenseRepository.findById(id).isEmpty()) {
-            apiResponse.setData("expense has been deleted");
-        } else {
-            throw new BadRequestException("problem with deleting the expense");
-        }
-
-        return apiResponse;
+        return "expense has been deleted";
     }
 }

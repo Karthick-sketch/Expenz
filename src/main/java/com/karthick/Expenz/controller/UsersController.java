@@ -16,7 +16,8 @@ public class UsersController {
 
     @GetMapping("/user")
     public ResponseEntity<ApiResponse> getAllUsers() {
-        ApiResponse apiResponse = userService.findAllUsers();
+        ApiResponse apiResponse = new ApiResponse();
+        apiResponse.setData(userService.findAllUsers());
         return ResponseEntity.status(apiResponse.getStatus()).body(apiResponse);
     }
 
@@ -29,19 +30,22 @@ public class UsersController {
 
     @PostMapping("/user")
     public ResponseEntity<ApiResponse> createNewUser(@RequestBody User user) {
-        ApiResponse apiResponse = userService.createNewUser(user);
+        ApiResponse apiResponse = new ApiResponse();
+        apiResponse.setData(userService.createNewUser(user));
         return ResponseEntity.status(apiResponse.getStatus()).body(apiResponse);
     }
 
     @PatchMapping("/user/{user-id}")
     public ResponseEntity<ApiResponse> updateUserById(@PathVariable("user-id") long id, @RequestBody Map<String, Object> updatedUser) {
-        ApiResponse apiResponse = userService.updateUserByFields(id, updatedUser);
+        ApiResponse apiResponse = new ApiResponse();
+        apiResponse.setData(userService.updateUserByFields(id, updatedUser));
         return ResponseEntity.status(apiResponse.getStatus()).body(apiResponse);
     }
 
     @DeleteMapping("/user/{user-id}")
     public ResponseEntity<ApiResponse> deleteUserById(@PathVariable("user-id") long id) {
-        ApiResponse apiResponse = userService.deleteUserById(id);
+        ApiResponse apiResponse = new ApiResponse();
+        apiResponse.setData(userService.deleteUserById(id));
         return ResponseEntity.status(apiResponse.getStatus()).body(apiResponse);
     }
 }

@@ -42,7 +42,7 @@ public class ExpenseService {
     public Expense createNewExpense(Expense expense) {
         try {
             return expenseRepository.save(expense);
-        } catch (IllegalArgumentException ex) {
+        } catch (Exception ex) {
             throw new BadRequestException(ex.getMessage());
         }
     }
@@ -66,7 +66,7 @@ public class ExpenseService {
                 }
             });
             return expenseRepository.save(expense.get());
-        } catch (IllegalArgumentException ex) {
+        } catch (Exception ex) {
             throw new BadRequestException(ex.getMessage());
         }
     }

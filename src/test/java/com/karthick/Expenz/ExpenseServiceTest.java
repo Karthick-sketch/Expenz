@@ -91,8 +91,9 @@ public class ExpenseServiceTest {
         Expense validExpense = expenseService.updateExpenseById(mockExpense.getId(), updatedFields, mockExpense.getUserId());
         Executable wrongId = () -> expenseService.updateExpenseById(2, updatedFields, mockExpense.getUserId());
         Executable wrongUserId = () -> expenseService.updateExpenseById(mockExpense.getId(), updatedFields, 2);
-        Map<String, Object> invalidTyeField = Map.of("amount", "45_000.0");
-        Executable invalidExpense = () -> expenseService.updateExpenseById(mockExpense.getId(), invalidTyeField, mockExpense.getUserId());
+
+        Map<String, Object> invalidFieldType = Map.of("amount", "45_000.0");
+        Executable invalidExpense = () -> expenseService.updateExpenseById(mockExpense.getId(), invalidFieldType, mockExpense.getUserId());
 
         assertEquals(mockExpense, validExpense);
         assertThrows(NoSuchElementException.class, wrongId);

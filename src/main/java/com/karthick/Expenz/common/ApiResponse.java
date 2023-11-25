@@ -1,21 +1,23 @@
 package com.karthick.Expenz.common;
 
+import org.springframework.http.HttpStatus;
+
 public class ApiResponse {
-    private int status;
+    private HttpStatus status;
     private Object data;
     private Object error;
 
     public ApiResponse() {
-        this.status = 200;
+        this.status = HttpStatus.OK;
         this.data = null;
         this.error = null;
     }
 
     public int getStatus() {
-        return status;
+        return status.value();
     }
 
-    public void setStatus(int status) {
+    public void setStatus(HttpStatus status) {
         this.status = status;
     }
 

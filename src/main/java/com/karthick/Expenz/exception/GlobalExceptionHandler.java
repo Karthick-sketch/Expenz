@@ -13,7 +13,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler
     public ResponseEntity<ApiResponse> handleNoSuchElementException(NoSuchElementException e) {
         ApiResponse apiResponse = new ApiResponse();
-        apiResponse.setStatus(HttpStatus.NOT_FOUND.value());
+        apiResponse.setStatus(HttpStatus.NOT_FOUND);
         apiResponse.setError(e.getMessage());
         return ResponseEntity.status(apiResponse.getStatus()).body(apiResponse);
     }
@@ -21,7 +21,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler
     public ResponseEntity<ApiResponse> handleBadRequestException(BadRequestException e) {
         ApiResponse apiResponse = new ApiResponse();
-        apiResponse.setStatus(HttpStatus.NOT_FOUND.value());
+        apiResponse.setStatus(HttpStatus.NOT_FOUND);
         apiResponse.setError(e.getMessage());
         return ResponseEntity.status(apiResponse.getStatus()).body(apiResponse);
     }

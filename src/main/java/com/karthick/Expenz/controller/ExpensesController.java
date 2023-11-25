@@ -5,6 +5,7 @@ import com.karthick.Expenz.entity.Expense;
 import com.karthick.Expenz.security.UserSession;
 import com.karthick.Expenz.service.ExpenseService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -35,6 +36,7 @@ public class ExpensesController {
     @PostMapping("/expense")
     public ResponseEntity<ApiResponse> createNewExpense(@RequestBody Expense expense) {
         ApiResponse apiResponse = new ApiResponse();
+        apiResponse.setStatus(HttpStatus.CREATED);
         apiResponse.setData(expenseService.createNewExpense(expense));
         return ResponseEntity.status(apiResponse.getStatus()).body(apiResponse);
     }
@@ -49,6 +51,7 @@ public class ExpensesController {
     @DeleteMapping("/expense/{id}")
     public ResponseEntity<ApiResponse> deleteExpenseById(@PathVariable("id") long id) {
         ApiResponse apiResponse = new ApiResponse();
+        apiResponse.setStatus(HttpStatus.NO_CONTENT);
         apiResponse.setData(expenseService.deleteExpenseById(id, userSession.getAuthenticatedUserId()));
         return ResponseEntity.status(apiResponse.getStatus()).body(apiResponse);
     }

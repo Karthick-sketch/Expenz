@@ -4,6 +4,7 @@ import com.karthick.Expenz.common.ApiResponse;
 import com.karthick.Expenz.entity.User;
 import com.karthick.Expenz.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -31,6 +32,7 @@ public class UsersController {
     @PostMapping("/user")
     public ResponseEntity<ApiResponse> createNewUser(@RequestBody User user) {
         ApiResponse apiResponse = new ApiResponse();
+        apiResponse.setStatus(HttpStatus.CREATED);
         apiResponse.setData(userService.createNewUser(user));
         return ResponseEntity.status(apiResponse.getStatus()).body(apiResponse);
     }
@@ -45,6 +47,7 @@ public class UsersController {
     @DeleteMapping("/user/{user-id}")
     public ResponseEntity<ApiResponse> deleteUserById(@PathVariable("user-id") long id) {
         ApiResponse apiResponse = new ApiResponse();
+        apiResponse.setStatus(HttpStatus.NO_CONTENT);
         apiResponse.setData(userService.deleteUserById(id));
         return ResponseEntity.status(apiResponse.getStatus()).body(apiResponse);
     }

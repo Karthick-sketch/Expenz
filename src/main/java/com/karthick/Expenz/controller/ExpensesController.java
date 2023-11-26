@@ -1,6 +1,5 @@
 package com.karthick.Expenz.controller;
 
-import com.karthick.Expenz.common.ApiResponse;
 import com.karthick.Expenz.entity.Expense;
 import com.karthick.Expenz.security.UserSession;
 import com.karthick.Expenz.service.ExpenseService;
@@ -9,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -20,39 +20,31 @@ public class ExpensesController {
     private UserSession userSession;
 
     @GetMapping("/expense")
-    public ResponseEntity<ApiResponse> getUserExpenses() {
-        ApiResponse apiResponse = new ApiResponse();
-        apiResponse.setData(expenseService.getExpensesByUsedId(userSession.getAuthenticatedUserId()));
-        return ResponseEntity.status(apiResponse.getStatus()).body(apiResponse);
+    public ResponseEntity<List<Expense>> getUserExpenses() {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(expenseService.getExpensesByUsedId(userSession.getAuthenticatedUserId()));
     }
 
     @GetMapping("/expense/{id}")
-    public ResponseEntity<ApiResponse> getExpensesById(@PathVariable("id") long id) {
-        ApiResponse apiResponse = new ApiResponse();
-        apiResponse.setData(expenseService.findExpensesById(id, userSession.getAuthenticatedUserId()));
-        return ResponseEntity.status(apiResponse.getStatus()).body(apiResponse);
+    public ResponseEntity<Expense> getExpensesById(@PathVariable("id") long id) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(expenseService.findExpensesById(id, userSession.getAuthenticatedUserId()));
     }
 
     @PostMapping("/expense")
-    public ResponseEntity<ApiResponse> createNewExpense(@RequestBody Expense expense) {
-        ApiResponse apiResponse = new ApiResponse();
-        apiResponse.setStatus(HttpStatus.CREATED);
-        apiResponse.setData(expenseService.createNewExpense(expense));
-        return ResponseEntity.status(apiResponse.getStatus()).body(apiResponse);
+    public ResponseEntity<Expense> createNewExpense(@RequestBody Expense expense) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(expenseService.createNewExpense(expense));
     }
 
     @PatchMapping("/expense/{id}")
-    public ResponseEntity<ApiResponse> updateExpenseById(@PathVariable("id") long id, @RequestBody Map<String, Object> newData) {
-        ApiResponse apiResponse = new ApiResponse();
-        apiResponse.setData(expenseService.updateExpenseById(id, newData, userSession.getAuthenticatedUserId()));
-        return ResponseEntity.status(apiResponse.getStatus()).body(apiResponse);
+    public ResponseEntity<Expense> updateExpenseById(@PathVariable("id") long id, @RequestBody Map<String, Object> newData) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(expenseService.updateExpenseById(id, newData, userSession.getAuthenticatedUserId()));
     }
 
     @DeleteMapping("/expense/{id}")
-    public ResponseEntity<ApiResponse> deleteExpenseById(@PathVariable("id") long id) {
-        ApiResponse apiResponse = new ApiResponse();
-        apiResponse.setStatus(HttpStatus.NO_CONTENT);
-        apiResponse.setData(expenseService.deleteExpenseById(id, userSession.getAuthenticatedUserId()));
-        return ResponseEntity.status(apiResponse.getStatus()).body(apiResponse);
+    public ResponseEntity<String> deleteExpenseById(@PathVariable("id") long id) {
+        return ResponseEntity.status(HttpStatus.NO_CONTENT)
+                .body(expenseService.deleteExpenseById(id, userSession.getAuthenticatedUserId()));
     }
 }

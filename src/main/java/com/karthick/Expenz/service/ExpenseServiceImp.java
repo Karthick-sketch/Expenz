@@ -42,8 +42,12 @@ public class ExpenseServiceImp implements ExpenseService {
     }
 
     @Override
-    public Expense createNewExpense(Expense expense) {
+    public Expense createNewExpense(Expense expense, long userId) {
+        if (userId == Constants.NOT_FOUND) {
+            throw new RuntimeException("something wrong at authentication");
+        }
         try {
+            expense.setUserId(userId);
             return expenseRepository.save(expense);
         } catch (Exception ex) {
             throw new BadRequestException(ex.getMessage());
@@ -80,12 +84,11 @@ public class ExpenseServiceImp implements ExpenseService {
             @CacheEvict(value = "expenses:user", key = "#userId"),
             @CacheEvict(value = "expense", key = "#id")
     })
-    public String deleteExpenseById(long id, long userId) {
+    public void deleteExpenseById(long id, long userId) {
         Optional<Expense> expense = expenseRepository.findById(id);
         if (expense.isEmpty() || expense.get().getUserId() != userId) {
             throw new NoSuchElementException("expecting expense is not found");
         }
         expenseRepository.delete(expense.get());
-        return "expense has been deleted";
     }
 }

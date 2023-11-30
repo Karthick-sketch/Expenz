@@ -91,10 +91,9 @@ public class UserServiceTest {
         User mockUser = getTestUserData();
         when(userRepository.findById(mockUser.getId())).thenReturn((Optional.of(mockUser)));
 
-        String deleteMsg = userService.deleteUserById(mockUser.getId());
+        userService.deleteUserById(mockUser.getId());
         Executable wrongId = () -> userService.deleteUserById(2);
 
-        assertEquals("user has been deleted", deleteMsg);
         assertThrows(NoSuchElementException.class, wrongId);
         verify(userRepository, times(1)).delete(mockUser);
     }

@@ -16,5 +16,5 @@ public interface UserService {
 
    User updateUserByFields(long id, Map<String, Object> fields);
 
-   String deleteUserById(long id);
+   void deleteUserById(long id);
 }

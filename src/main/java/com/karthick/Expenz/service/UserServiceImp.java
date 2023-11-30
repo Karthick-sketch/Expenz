@@ -71,12 +71,10 @@ public class UserServiceImp implements UserService {
 
     @Override
     @CacheEvict(value = "user", key = "#id")
-    public String deleteUserById(long id) {
-        Optional<User> user = userRepository.findById(id);
-        if (user.isEmpty()) {
+    public void deleteUserById(long id) {
+        if (!userRepository.existsById(id)) {
             throw new NoSuchElementException("expecting user is not found");
         }
-        userRepository.delete(user.get());
-        return "user has been deleted";
+        userRepository.deleteById(id);
     }
 }

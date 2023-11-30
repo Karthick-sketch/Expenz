@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
+@RequestMapping("/expense")
 public class ExpensesController {
     @Autowired
     private ExpenseService expenseService;
@@ -19,32 +20,28 @@ public class ExpensesController {
     @Autowired
     private UserSession userSession;
 
-    @GetMapping("/expense")
+    @GetMapping("/all")
     public ResponseEntity<List<Expense>> getUserExpenses() {
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(expenseService.getExpensesByUsedId(userSession.getAuthenticatedUserId()));
+        return new ResponseEntity<>(expenseService.getExpensesByUsedId(userSession.getAuthenticatedUserId()), HttpStatus.OK);
     }
 
-    @GetMapping("/expense/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<Expense> getExpensesById(@PathVariable("id") long id) {
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(expenseService.findExpensesById(id, userSession.getAuthenticatedUserId()));
+        return new ResponseEntity<>(expenseService.findExpensesById(id, userSession.getAuthenticatedUserId()), HttpStatus.OK);
     }
 
-    @PostMapping("/expense")
+    @PostMapping
     public ResponseEntity<Expense> createNewExpense(@RequestBody Expense expense) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(expenseService.createNewExpense(expense));
+        return new ResponseEntity<>(expenseService.createNewExpense(expense, userSession.getAuthenticatedUserId()), HttpStatus.CREATED);
     }
 
-    @PatchMapping("/expense/{id}")
+    @PatchMapping("/{id}")
     public ResponseEntity<Expense> updateExpenseById(@PathVariable("id") long id, @RequestBody Map<String, Object> newData) {
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(expenseService.updateExpenseById(id, newData, userSession.getAuthenticatedUserId()));
+        return new ResponseEntity<>(expenseService.updateExpenseById(id, newData, userSession.getAuthenticatedUserId()), HttpStatus.OK);
     }
 
-    @DeleteMapping("/expense/{id}")
-    public ResponseEntity<String> deleteExpenseById(@PathVariable("id") long id) {
-        return ResponseEntity.status(HttpStatus.NO_CONTENT)
-                .body(expenseService.deleteExpenseById(id, userSession.getAuthenticatedUserId()));
+    @DeleteMapping("/{id}")
+    public ResponseEntity<HttpStatus> deleteExpenseById(@PathVariable("id") long id) {
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

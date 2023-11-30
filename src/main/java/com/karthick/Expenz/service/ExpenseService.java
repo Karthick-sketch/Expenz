@@ -10,9 +10,9 @@ public interface ExpenseService {
 
     List<Expense> getExpensesByUsedId(long userId);
 
-    Expense createNewExpense(Expense expense);
+    Expense createNewExpense(Expense expense, long userId);
 
     Expense updateExpenseById(long id, Map<String, Object> fields, long userId);
 
-    String deleteExpenseById(long id, long userId);
+    void deleteExpenseById(long id, long userId);
 }

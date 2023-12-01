@@ -15,28 +15,30 @@ import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 
 @Service
 public class ExpenseServiceImp implements ExpenseService {
     @Autowired
     private ExpenseRepository expenseRepository;
 
+    @Autowired
+    private UserService userService;
+
     @Override
     @Cacheable(value = "expense", key = "#id")
     public Expense findExpensesById(long id, long userId) {
-        Optional<Expense> expense = expenseRepository.findById(id);
-        if (expense.isEmpty() || expense.get().getUserId() != userId) {
+        Expense expense = expenseRepository.findById(id).orElseThrow();
+        if (expense.getUser().getId() != userId) {
             throw new NoSuchElementException("expecting expense is not found");
         }
-        return expense.get();
+        return expense;
     }
 
     @Override
     @Cacheable(value = "expenses:user", key = "#userId")
     public List<Expense> getExpensesByUsedId(long userId) {
         if (userId == Constants.NOT_FOUND) {
-            throw new RuntimeException("something wrong at authentication");
+            throw new BadRequestException("something wrong at authentication");
         }
         return expenseRepository.findByUserId(userId);
     }
@@ -44,10 +46,10 @@ public class ExpenseServiceImp implements ExpenseService {
     @Override
     public Expense createNewExpense(Expense expense, long userId) {
         if (userId == Constants.NOT_FOUND) {
-            throw new RuntimeException("something wrong at authentication");
+            throw new BadRequestException("something wrong at authentication");
         }
         try {
-            expense.setUserId(userId);
+            expense.setUser(userService.findUserById(userId));
             return expenseRepository.save(expense);
         } catch (Exception ex) {
             throw new BadRequestException(ex.getMessage());
@@ -60,8 +62,8 @@ public class ExpenseServiceImp implements ExpenseService {
             @CacheEvict(value = "expense", key = "#id")
     })
     public Expense updateExpenseById(long id, Map<String, Object> fields, long userId) {
-        Optional<Expense> expense = expenseRepository.findById(id);
-        if (expense.isEmpty() || expense.get().getUserId() != userId) {
+        Expense expense = expenseRepository.findById(id).orElseThrow();
+        if (expense.getUser().getId() != userId) {
             throw new NoSuchElementException("expecting expense is not found");
         }
 
@@ -70,10 +72,10 @@ public class ExpenseServiceImp implements ExpenseService {
                 Field field = ReflectionUtils.findField(Expense.class, key);
                 if (field != null) {
                     field.setAccessible(true);
-                    ReflectionUtils.setField(field, expense.get(), value);
+                    ReflectionUtils.setField(field, expense, value);
                 }
             });
-            return expenseRepository.save(expense.get());
+            return expenseRepository.save(expense);
         } catch (Exception ex) {
             throw new BadRequestException(ex.getMessage());
         }
@@ -85,10 +87,10 @@ public class ExpenseServiceImp implements ExpenseService {
             @CacheEvict(value = "expense", key = "#id")
     })
     public void deleteExpenseById(long id, long userId) {
-        Optional<Expense> expense = expenseRepository.findById(id);
-        if (expense.isEmpty() || expense.get().getUserId() != userId) {
+        Expense expense = expenseRepository.findById(id).orElseThrow();
+        if (expense.getUser().getId() != userId) {
             throw new NoSuchElementException("expecting expense is not found");
         }
-        expenseRepository.delete(expense.get());
+        expenseRepository.delete(expense);
     }
 }

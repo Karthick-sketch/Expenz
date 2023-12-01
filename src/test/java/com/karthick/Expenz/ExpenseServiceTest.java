@@ -2,6 +2,7 @@ package com.karthick.Expenz;
 
 import com.karthick.Expenz.common.Constants;
 import com.karthick.Expenz.entity.Expense;
+import com.karthick.Expenz.entity.User;
 import com.karthick.Expenz.exception.BadRequestException;
 import com.karthick.Expenz.repository.ExpenseRepository;
 import com.karthick.Expenz.service.ExpenseService;
@@ -35,7 +36,14 @@ public class ExpenseServiceTest {
         expense.setTitle("Playstation 5");
         expense.setDescription("Play next generation games");
         expense.setDateAdded(new Date());
-        expense.setUserId(1L);
+
+        User user = new User();
+        user.setId(1);
+        user.setUsername("Kang");
+        user.setEmail("kang@marvel.com");
+        user.setPassword("conqueror");
+        expense.setUser(user);
+
         return expense;
     }
 
@@ -44,8 +52,8 @@ public class ExpenseServiceTest {
         Expense mockExpense = getTestExpenseData();
         when(expenseRepository.findById(mockExpense.getId())).thenReturn((Optional.of(mockExpense)));
 
-        Expense validExpense = expenseService.findExpensesById(mockExpense.getId(), mockExpense.getUserId());
-        Executable wrongId = () -> expenseService.findExpensesById(2, mockExpense.getUserId());
+        Expense validExpense = expenseService.findExpensesById(mockExpense.getId(), mockExpense.getUser().getId());
+        Executable wrongId = () -> expenseService.findExpensesById(2, mockExpense.getUser().getId());
         Executable wrongUserId = () -> expenseService.findExpensesById(mockExpense.getId(), 2);
 
         assertEquals(mockExpense, validExpense);
@@ -56,9 +64,9 @@ public class ExpenseServiceTest {
     @Test
     public void testGetExpensesByUsedId() {
         Expense mockExpense = getTestExpenseData();
-        when(expenseRepository.findByUserId(mockExpense.getUserId())).thenReturn(List.of(mockExpense));
+        when(expenseRepository.findByUserId(mockExpense.getUser().getId())).thenReturn(List.of(mockExpense));
 
-        List<Expense> validExpense = expenseService.getExpensesByUsedId(mockExpense.getUserId());
+        List<Expense> validExpense = expenseService.getExpensesByUsedId(mockExpense.getUser().getId());
         Executable notFoundUserId = () -> expenseService.getExpensesByUsedId(Constants.NOT_FOUND);
 
         assertEquals(mockExpense, validExpense.get(0));
@@ -70,7 +78,7 @@ public class ExpenseServiceTest {
         Expense mockExpense = getTestExpenseData();
         when(expenseRepository.save(mockExpense)).thenReturn(mockExpense);
 
-        Expense expense = expenseService.createNewExpense(mockExpense, mockExpense.getUserId());
+        Expense expense = expenseService.createNewExpense(mockExpense, mockExpense.getUser().getId());
 
         assertEquals(mockExpense, expense);
         verify(expenseRepository, times(1)).save(mockExpense);
@@ -90,13 +98,13 @@ public class ExpenseServiceTest {
 
         Map<String, Object> updatedFields = Map.of("amount", 45_000.0);
         Expense validExpense = expenseService.updateExpenseById(mockExpense.getId(), updatedFields,
-                mockExpense.getUserId());
-        Executable wrongId = () -> expenseService.updateExpenseById(2, updatedFields, mockExpense.getUserId());
+                mockExpense.getUser().getId());
+        Executable wrongId = () -> expenseService.updateExpenseById(2, updatedFields, mockExpense.getUser().getId());
         Executable wrongUserId = () -> expenseService.updateExpenseById(mockExpense.getId(), updatedFields, 2);
 
         Map<String, Object> invalidFieldType = Map.of("amount", "45_000.0");
         Executable invalidExpense = () -> expenseService.updateExpenseById(mockExpense.getId(), invalidFieldType,
-                mockExpense.getUserId());
+                mockExpense.getUser().getId());
 
         assertEquals(mockExpense, validExpense);
         assertThrows(NoSuchElementException.class, wrongId);
@@ -110,8 +118,8 @@ public class ExpenseServiceTest {
         Expense mockExpense = getTestExpenseData();
         when(expenseRepository.findById(mockExpense.getId())).thenReturn((Optional.of(mockExpense)));
 
-        expenseService.deleteExpenseById(mockExpense.getId(), mockExpense.getUserId());
-        Executable wrongId = () -> expenseService.deleteExpenseById(2, mockExpense.getUserId());
+        expenseService.deleteExpenseById(mockExpense.getId(), mockExpense.getUser().getId());
+        Executable wrongId = () -> expenseService.deleteExpenseById(2, mockExpense.getUser().getId());
         Executable wrongUserId = () -> expenseService.deleteExpenseById(mockExpense.getId(), 2);
 
         assertThrows(NoSuchElementException.class, wrongId);

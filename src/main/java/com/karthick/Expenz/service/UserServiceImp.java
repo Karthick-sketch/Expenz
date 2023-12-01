@@ -14,7 +14,6 @@ import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 
 @Service
 public class UserServiceImp implements UserService {
@@ -31,11 +30,7 @@ public class UserServiceImp implements UserService {
     @Override
     @Cacheable(value = "user", key = "#id")
     public User findUserById(long id) {
-        Optional<User> user = userRepository.findById(id);
-        if (user.isEmpty()) {
-            throw new NoSuchElementException("expecting user is not found");
-        }
-        return user.get();
+        return userRepository.findById(id).orElseThrow();
     }
 
     @Override
@@ -51,19 +46,16 @@ public class UserServiceImp implements UserService {
     @Override
     @CacheEvict(value = "user", key = "#id")
     public User updateUserByFields(long id, Map<String, Object> fields) {
-        Optional<User> user = userRepository.findById(id);
-        if (user.isEmpty()) {
-            throw new NoSuchElementException("expecting user is not found");
-        }
         try {
+            User user = userRepository.findById(id).orElseThrow();
             fields.forEach((key, value) -> {
                 Field field = ReflectionUtils.findField(User.class, key);
                 if (field != null) {
                     field.setAccessible(true);
-                    ReflectionUtils.setField(field, user.get(), value);
+                    ReflectionUtils.setField(field, user, value);
                 }
             });
-            return userRepository.save(user.get());
+            return userRepository.save(user);
         } catch (Exception ex) {
             throw new BadRequestException(ex.getMessage());
         }

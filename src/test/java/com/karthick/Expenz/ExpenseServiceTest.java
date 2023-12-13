@@ -5,7 +5,8 @@ import com.karthick.Expenz.entity.Expense;
 import com.karthick.Expenz.entity.User;
 import com.karthick.Expenz.exception.BadRequestException;
 import com.karthick.Expenz.repository.ExpenseRepository;
-import com.karthick.Expenz.service.ExpenseService;
+import com.karthick.Expenz.service.ExpenseServiceImp;
+import com.karthick.Expenz.service.UserService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.function.Executable;
@@ -24,8 +25,11 @@ public class ExpenseServiceTest {
     @Mock
     private ExpenseRepository expenseRepository;
 
+    @Mock
+    private UserService userService;
+
     @InjectMocks
-    private ExpenseService expenseService;
+    private ExpenseServiceImp expenseService;
 
     private Expense getTestExpenseData() {
         Expense expense = new Expense();

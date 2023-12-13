@@ -1,0 +1,17 @@
+version: '3'
+
+services:
+  mysql:
+    image: mysql:8.0
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: expenz
+
+  spring-app:
+    build: .
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mysql
+    command: bash -c 'while !</dev/tcp/mysql/3306; do sleep 5; done && java -jar Expenz.jar'

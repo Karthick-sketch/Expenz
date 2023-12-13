@@ -3,7 +3,7 @@ package com.karthick.Expenz;
 import com.karthick.Expenz.entity.User;
 import com.karthick.Expenz.exception.BadRequestException;
 import com.karthick.Expenz.repository.UserRepository;
-import com.karthick.Expenz.service.UserService;
+import com.karthick.Expenz.service.UserServiceImp;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.function.Executable;
@@ -27,7 +27,7 @@ public class UserServiceTest {
     private PasswordEncoder passwordEncoder;
 
     @InjectMocks
-    private UserService userService;
+    private UserServiceImp userService;
 
     private User getTestUserData() {
         User user = new User();
@@ -60,11 +60,11 @@ public class UserServiceTest {
 
         assertEquals(mockUser, user);
         verify(userRepository, times(1)).save(mockUser);
-    /*
-        # need to clarify how to pass invalid type to primitive types
-        Executable invalidUser = () -> userService.createNewUser(mockUser);
-        assertThrows(BadRequestException.class, invalidUser);
-     */
+        /*
+         * # need to clarify how to pass invalid type to primitive types
+         * Executable invalidUser = () -> userService.createNewUser(mockUser);
+         * assertThrows(BadRequestException.class, invalidUser);
+         */
     }
 
     @Test
@@ -89,12 +89,12 @@ public class UserServiceTest {
     @Test
     public void testDeleteUserById() {
         User mockUser = getTestUserData();
-        when(userRepository.findById(mockUser.getId())).thenReturn((Optional.of(mockUser)));
+        when(userRepository.existsById(mockUser.getId())).thenReturn(true);
 
         userService.deleteUserById(mockUser.getId());
         Executable wrongId = () -> userService.deleteUserById(2);
 
         assertThrows(NoSuchElementException.class, wrongId);
-        verify(userRepository, times(1)).delete(mockUser);
+        verify(userRepository, times(1)).deleteById(mockUser.getId());
     }
 }

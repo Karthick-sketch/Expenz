@@ -7,7 +7,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -15,11 +14,6 @@ import java.util.Map;
 public class UsersController {
     @Autowired
     private UserService userService;
-
-    @GetMapping("/all")
-    public ResponseEntity<List<User>> getAllUsers() {
-        return new ResponseEntity<>(userService.findAllUsers(), HttpStatus.OK);
-    }
 
     @GetMapping("/{user-id}")
     public ResponseEntity<User> getUserById(@PathVariable("user-id") long id) {

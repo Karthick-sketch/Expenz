@@ -1,21 +1,33 @@
 package com.karthick.Expenz.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.io.Serializable;
+import java.util.List;
 
 @Entity(name = "users")
-@Getter @Setter
+@Getter
+@Setter
+@NoArgsConstructor
+@RequiredArgsConstructor
 public class User implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
-    @Column(name = "username", nullable = false)
+
+    @NonNull
+    @Column(name = "username", nullable = false, unique = true)
     private String username;
-    @Column(name = "email", nullable = false)
+    @NonNull
+    @Column(name = "email", nullable = false, unique = true)
     private String email;
+    @NonNull
     @Column(name = "password", nullable = false)
     private String password;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<Expense> expenses;
 }

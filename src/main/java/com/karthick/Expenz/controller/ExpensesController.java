@@ -3,7 +3,7 @@ package com.karthick.Expenz.controller;
 import com.karthick.Expenz.entity.Expense;
 import com.karthick.Expenz.security.UserSession;
 import com.karthick.Expenz.service.ExpenseService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,11 +13,9 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/expense")
+@AllArgsConstructor
 public class ExpensesController {
-    @Autowired
     private ExpenseService expenseService;
-
-    @Autowired
     private UserSession userSession;
 
     @GetMapping("/all")

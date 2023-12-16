@@ -1,5 +1,6 @@
 package com.karthick.Expenz.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -26,6 +27,7 @@ public class Expense implements Serializable {
     @Column(name = "date_added", nullable = false)
     private Date dateAdded;
 
+    @JsonIgnore
     @ManyToOne(optional = false)
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;

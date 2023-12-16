@@ -2,7 +2,7 @@ package com.karthick.Expenz.controller;
 
 import com.karthick.Expenz.entity.User;
 import com.karthick.Expenz.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -11,8 +11,8 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/user")
+@AllArgsConstructor
 public class UsersController {
-    @Autowired
     private UserService userService;
 
     @GetMapping("/{user-id}")

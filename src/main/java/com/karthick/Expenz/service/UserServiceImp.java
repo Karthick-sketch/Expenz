@@ -3,7 +3,7 @@ package com.karthick.Expenz.service;
 import com.karthick.Expenz.entity.User;
 import com.karthick.Expenz.exception.BadRequestException;
 import com.karthick.Expenz.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -16,11 +16,9 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @Service
+@AllArgsConstructor
 public class UserServiceImp implements UserService {
-    @Autowired
     private UserRepository userRepository;
-
-    @Autowired
     private PasswordEncoder passwordEncoder;
 
     @Override

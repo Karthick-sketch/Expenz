@@ -4,7 +4,7 @@ import com.karthick.Expenz.common.Constants;
 import com.karthick.Expenz.entity.Expense;
 import com.karthick.Expenz.exception.BadRequestException;
 import com.karthick.Expenz.repository.ExpenseRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
@@ -17,11 +17,9 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 
 @Service
+@AllArgsConstructor
 public class ExpenseServiceImp implements ExpenseService {
-    @Autowired
     private ExpenseRepository expenseRepository;
-
-    @Autowired
     private UserService userService;
 
     @Override

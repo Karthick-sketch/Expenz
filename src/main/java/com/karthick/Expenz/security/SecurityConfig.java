@@ -1,46 +1,38 @@
 package com.karthick.Expenz.security;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import com.karthick.Expenz.security.filter.AuthenticationFilter;
+import com.karthick.Expenz.security.filter.ExceptionHandlerFilter;
+import com.karthick.Expenz.security.filter.JWTAuthenticationFilter;
+import com.karthick.Expenz.security.manager.CustomAuthenticationManager;
+import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
-import org.springframework.security.authentication.AuthenticationProvider;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
 @EnableWebSecurity
+@AllArgsConstructor
 public class SecurityConfig {
-    @Autowired
-    PasswordEncoder passwordEncoder;
+    private final CustomAuthenticationManager customAuthenticationManager;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        AuthenticationFilter authenticationFilter = new AuthenticationFilter(customAuthenticationManager);
+        authenticationFilter.setFilterProcessesUrl("/authenticate");
+
         http.csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(authorize -> authorize.requestMatchers(HttpMethod.POST, "/user").permitAll())
+                .authorizeHttpRequests(authorize -> authorize.requestMatchers(HttpMethod.POST, SecurityConstants.REGISTER_PATH).permitAll())
                 .authorizeHttpRequests(authorize -> authorize.anyRequest().authenticated())
-                .httpBasic(Customizer.withDefaults())
+                .addFilterBefore(new ExceptionHandlerFilter(), AuthenticationFilter.class)
+                .addFilter(authenticationFilter)
+                .addFilterAfter(new JWTAuthenticationFilter(), AuthenticationFilter.class)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+
         return http.build();
-    }
-
-    @Bean
-    public UserDetailsService userDetailsService() {
-        return new UserDetailsServiceImp();
-    }
-
-    @Bean
-    public AuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
-        daoAuthenticationProvider.setUserDetailsService(userDetailsService());
-        daoAuthenticationProvider.setPasswordEncoder(passwordEncoder);
-        return daoAuthenticationProvider;
     }
 }

@@ -1,9 +1,10 @@
 package com.karthick.Expenz.service;
 
-import com.karthick.Expenz.common.Constants;
 import com.karthick.Expenz.entity.Expense;
 import com.karthick.Expenz.exception.BadRequestException;
+import com.karthick.Expenz.exception.EntityNotFoundException;
 import com.karthick.Expenz.repository.ExpenseRepository;
+import com.karthick.Expenz.security.SecurityConstants;
 import lombok.AllArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -14,7 +15,6 @@ import org.springframework.util.ReflectionUtils;
 import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Map;
-import java.util.NoSuchElementException;
 
 @Service
 @AllArgsConstructor
@@ -27,7 +27,7 @@ public class ExpenseServiceImp implements ExpenseService {
     public Expense findExpensesById(long id, long userId) {
         Expense expense = expenseRepository.findById(id).orElseThrow();
         if (expense.getUser().getId() != userId) {
-            throw new NoSuchElementException("expecting expense is not found");
+            throw new EntityNotFoundException(id, Expense.class);
         }
         return expense;
     }
@@ -35,7 +35,7 @@ public class ExpenseServiceImp implements ExpenseService {
     @Override
     @Cacheable(value = "expenses:user", key = "#userId")
     public List<Expense> getExpensesByUsedId(long userId) {
-        if (userId == Constants.NOT_FOUND) {
+        if (userId == SecurityConstants.NOT_FOUND) {
             throw new BadRequestException("something wrong at authentication");
         }
         return expenseRepository.findByUserId(userId);
@@ -43,11 +43,11 @@ public class ExpenseServiceImp implements ExpenseService {
 
     @Override
     public Expense createNewExpense(Expense expense, long userId) {
-        if (userId == Constants.NOT_FOUND) {
+        if (userId == SecurityConstants.NOT_FOUND) {
             throw new BadRequestException("something wrong at authentication");
         }
         try {
-            expense.setUser(userService.findUserById(userId));
+            expense.setUser(userService.getUserById(userId));
             return expenseRepository.save(expense);
         } catch (Exception ex) {
             throw new BadRequestException(ex.getMessage());
@@ -62,7 +62,7 @@ public class ExpenseServiceImp implements ExpenseService {
     public Expense updateExpenseById(long id, Map<String, Object> fields, long userId) {
         Expense expense = expenseRepository.findById(id).orElseThrow();
         if (expense.getUser().getId() != userId) {
-            throw new NoSuchElementException("expecting expense is not found");
+            throw new EntityNotFoundException(id, Expense.class);
         }
 
         try {
@@ -87,7 +87,7 @@ public class ExpenseServiceImp implements ExpenseService {
     public void deleteExpenseById(long id, long userId) {
         Expense expense = expenseRepository.findById(id).orElseThrow();
         if (expense.getUser().getId() != userId) {
-            throw new NoSuchElementException("expecting expense is not found");
+            throw new EntityNotFoundException(id, Expense.class);
         }
         expenseRepository.delete(expense);
     }

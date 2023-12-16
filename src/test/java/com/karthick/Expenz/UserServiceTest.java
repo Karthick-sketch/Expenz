@@ -2,6 +2,7 @@ package com.karthick.Expenz;
 
 import com.karthick.Expenz.entity.User;
 import com.karthick.Expenz.exception.BadRequestException;
+import com.karthick.Expenz.exception.EntityNotFoundException;
 import com.karthick.Expenz.repository.UserRepository;
 import com.karthick.Expenz.service.UserServiceImp;
 import org.junit.jupiter.api.Test;
@@ -12,7 +13,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.util.*;
+import java.util.Map;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -39,15 +41,27 @@ public class UserServiceTest {
     }
 
     @Test
-    public void testFindUserById() {
+    public void testGetUserById() {
         User mockUser = getTestUserData();
         when(userRepository.findById(mockUser.getId())).thenReturn((Optional.of(mockUser)));
 
-        User validUser = userService.findUserById(mockUser.getId());
-        Executable wrongId = () -> userService.findUserById(2);
+        User validUser = userService.getUserById(mockUser.getId());
+        Executable wrongId = () -> userService.getUserById(2);
 
         assertEquals(mockUser, validUser);
-        assertThrows(NoSuchElementException.class, wrongId);
+        assertThrows(EntityNotFoundException.class, wrongId);
+    }
+
+    @Test
+    public void testGetUserByUsername() {
+        User mockUser = getTestUserData();
+        when(userRepository.findByUsername(mockUser.getUsername())).thenReturn((Optional.of(mockUser)));
+
+        User validUser = userService.getUserByUsername(mockUser.getUsername());
+        Executable wrongId = () -> userService.getUserByUsername("testuser");
+
+        assertEquals(mockUser, validUser);
+        assertThrows(EntityNotFoundException.class, wrongId);
     }
 
     @Test
@@ -81,7 +95,7 @@ public class UserServiceTest {
         Executable invalidUser = () -> userService.updateUserByFields(mockUser.getId(), invalidFieldType);
 
         assertEquals(mockUser, validUser);
-        assertThrows(NoSuchElementException.class, wrongId);
+        assertThrows(EntityNotFoundException.class, wrongId);
         assertThrows(BadRequestException.class, invalidUser);
         verify(userRepository, times(1)).save(mockUser);
     }
@@ -94,7 +108,7 @@ public class UserServiceTest {
         userService.deleteUserById(mockUser.getId());
         Executable wrongId = () -> userService.deleteUserById(2);
 
-        assertThrows(NoSuchElementException.class, wrongId);
+        assertThrows(EntityNotFoundException.class, wrongId);
         verify(userRepository, times(1)).deleteById(mockUser.getId());
     }
 }

@@ -2,6 +2,7 @@ package com.karthick.Expenz.service;
 
 import com.karthick.Expenz.entity.User;
 import com.karthick.Expenz.exception.BadRequestException;
+import com.karthick.Expenz.exception.EntityNotFoundException;
 import com.karthick.Expenz.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
@@ -12,7 +13,6 @@ import org.springframework.util.ReflectionUtils;
 
 import java.lang.reflect.Field;
 import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @Service
@@ -23,12 +23,23 @@ public class UserServiceImp implements UserService {
 
     @Override
     @Cacheable(value = "user", key = "#id")
-    public User findUserById(long id) {
+    public User getUserById(long id) {
         Optional<User> user = userRepository.findById(id);
-        if (user.isEmpty()) {
-            throw new NoSuchElementException("expecting user is not found");
+        if (user.isPresent()) {
+            return user.get();
+        } else {
+            throw new EntityNotFoundException(id, User.class);
         }
-        return user.get();
+    }
+
+    @Override
+    public User getUserByUsername(String username) {
+        Optional<User> user = userRepository.findByUsername(username);
+        if (user.isPresent()) {
+            return user.get();
+        } else {
+            throw new EntityNotFoundException("The user with the username '" + username + "' does not exist in our records");
+        }
     }
 
     @Override
@@ -44,7 +55,7 @@ public class UserServiceImp implements UserService {
     @Override
     @CacheEvict(value = "user", key = "#id")
     public User updateUserByFields(long id, Map<String, Object> fields) {
-        User user = findUserById(id);
+        User user = getUserById(id);
         try {
             fields.forEach((key, value) -> {
                 Field field = ReflectionUtils.findField(User.class, key);
@@ -65,7 +76,7 @@ public class UserServiceImp implements UserService {
         if (userRepository.existsById(id)) {
             userRepository.deleteById(id);
         } else {
-            throw new NoSuchElementException("expecting user is not found");
+            throw new EntityNotFoundException(id, User.class);
         }
     }
 }

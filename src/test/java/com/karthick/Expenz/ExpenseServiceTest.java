@@ -1,10 +1,11 @@
 package com.karthick.Expenz;
 
-import com.karthick.Expenz.common.Constants;
 import com.karthick.Expenz.entity.Expense;
 import com.karthick.Expenz.entity.User;
 import com.karthick.Expenz.exception.BadRequestException;
+import com.karthick.Expenz.exception.EntityNotFoundException;
 import com.karthick.Expenz.repository.ExpenseRepository;
+import com.karthick.Expenz.security.SecurityConstants;
 import com.karthick.Expenz.service.ExpenseServiceImp;
 import com.karthick.Expenz.service.UserService;
 import org.junit.jupiter.api.Test;
@@ -14,7 +15,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.*;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -61,8 +65,8 @@ public class ExpenseServiceTest {
         Executable wrongUserId = () -> expenseService.findExpensesById(mockExpense.getId(), 2);
 
         assertEquals(mockExpense, validExpense);
-        assertThrows(NoSuchElementException.class, wrongId);
-        assertThrows(NoSuchElementException.class, wrongUserId);
+        assertThrows(EntityNotFoundException.class, wrongId);
+        assertThrows(EntityNotFoundException.class, wrongUserId);
     }
 
     @Test
@@ -71,7 +75,7 @@ public class ExpenseServiceTest {
         when(expenseRepository.findByUserId(mockExpense.getUser().getId())).thenReturn(List.of(mockExpense));
 
         List<Expense> validExpense = expenseService.getExpensesByUsedId(mockExpense.getUser().getId());
-        Executable notFoundUserId = () -> expenseService.getExpensesByUsedId(Constants.NOT_FOUND);
+        Executable notFoundUserId = () -> expenseService.getExpensesByUsedId(SecurityConstants.NOT_FOUND);
 
         assertEquals(mockExpense, validExpense.get(0));
         assertThrows(RuntimeException.class, notFoundUserId);
@@ -111,8 +115,8 @@ public class ExpenseServiceTest {
                 mockExpense.getUser().getId());
 
         assertEquals(mockExpense, validExpense);
-        assertThrows(NoSuchElementException.class, wrongId);
-        assertThrows(NoSuchElementException.class, wrongUserId);
+        assertThrows(EntityNotFoundException.class, wrongId);
+        assertThrows(EntityNotFoundException.class, wrongUserId);
         assertThrows(BadRequestException.class, invalidExpense);
         verify(expenseRepository, times(1)).save(mockExpense);
     }
@@ -126,8 +130,8 @@ public class ExpenseServiceTest {
         Executable wrongId = () -> expenseService.deleteExpenseById(2, mockExpense.getUser().getId());
         Executable wrongUserId = () -> expenseService.deleteExpenseById(mockExpense.getId(), 2);
 
-        assertThrows(NoSuchElementException.class, wrongId);
-        assertThrows(NoSuchElementException.class, wrongUserId);
+        assertThrows(EntityNotFoundException.class, wrongId);
+        assertThrows(EntityNotFoundException.class, wrongUserId);
         verify(expenseRepository, times(1)).delete(mockExpense);
     }
 }

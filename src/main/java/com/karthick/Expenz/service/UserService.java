@@ -7,7 +7,9 @@ import java.util.Map;
 
 @Service
 public interface UserService {
-   User findUserById(long id);
+   User getUserById(long id);
+
+    User getUserByUsername(String name);
 
    User createNewUser(User user);
 

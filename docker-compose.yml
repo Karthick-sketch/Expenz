@@ -1,17 +1,51 @@
-version: '3'
+version: '3.7'
 
 services:
   mysql:
     image: mysql:8.0
+    volumes:
+      - mysql-vol:/var/lib/mysql
+    networks:
+      - mysql-network
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: expenz
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - '3306:3306'
+    expose:
+      - '3306'
+
+  redis:
+    image: redis:latest
+    volumes:
+      - redis-vol:/data
+    networks:
+      - mysql-network
+    ports:
+      - '6379:6379'
+    restart: always
 
   spring-app:
     build: .
+    volumes:
+      - expenz-vol:/path/in/container
+    networks:
+      - mysql-network
+    restart: always
     ports:
-      - "8080:8080"
+      - '8080:8080'
     depends_on:
       - mysql
+      - redis
     command: bash -c 'while !</dev/tcp/mysql/3306; do sleep 5; done && java -jar Expenz.jar'
+
+networks:
+  mysql-network:
+
+volumes:
+  mysql-vol:
+  redis-vol:
+  expenz-vol:

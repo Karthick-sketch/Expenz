@@ -25,7 +25,7 @@ public class ExpensesController {
 
     @GetMapping("/{id}")
     public ResponseEntity<Expense> getExpensesById(@PathVariable("id") long id) {
-        return new ResponseEntity<>(expenseService.findExpensesById(id, userSession.getAuthenticatedUserId()), HttpStatus.OK);
+        return new ResponseEntity<>(expenseService.getExpenseById(id, userSession.getAuthenticatedUserId()), HttpStatus.OK);
     }
 
     @PostMapping

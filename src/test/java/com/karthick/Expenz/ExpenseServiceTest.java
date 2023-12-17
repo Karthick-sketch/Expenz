@@ -60,9 +60,9 @@ public class ExpenseServiceTest {
         Expense mockExpense = getTestExpenseData();
         when(expenseRepository.findById(mockExpense.getId())).thenReturn((Optional.of(mockExpense)));
 
-        Expense validExpense = expenseService.findExpensesById(mockExpense.getId(), mockExpense.getUser().getId());
-        Executable wrongId = () -> expenseService.findExpensesById(2, mockExpense.getUser().getId());
-        Executable wrongUserId = () -> expenseService.findExpensesById(mockExpense.getId(), 2);
+        Expense validExpense = expenseService.getExpenseById(mockExpense.getId(), mockExpense.getUser().getId());
+        Executable wrongId = () -> expenseService.getExpenseById(2, mockExpense.getUser().getId());
+        Executable wrongUserId = () -> expenseService.getExpenseById(mockExpense.getId(), 2);
 
         assertEquals(mockExpense, validExpense);
         assertThrows(EntityNotFoundException.class, wrongId);

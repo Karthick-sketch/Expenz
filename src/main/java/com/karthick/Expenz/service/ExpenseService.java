@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 public interface ExpenseService {
-    Expense findExpensesById(long id, long userId);
+    Expense getExpenseById(long id, long userId);
 
     List<Expense> getExpensesByUsedId(long userId);
 

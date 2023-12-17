@@ -15,6 +15,7 @@ import org.springframework.util.ReflectionUtils;
 import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 @AllArgsConstructor
@@ -24,12 +25,12 @@ public class ExpenseServiceImp implements ExpenseService {
 
     @Override
     @Cacheable(value = "expense", key = "#id")
-    public Expense findExpensesById(long id, long userId) {
-        Expense expense = expenseRepository.findById(id).orElseThrow();
-        if (expense.getUser().getId() != userId) {
+    public Expense getExpenseById(long id, long userId) {
+        Optional<Expense> expense = expenseRepository.findById(id);
+        if (expense.isEmpty() || expense.get().getUser().getId() != userId) {
             throw new EntityNotFoundException(id, Expense.class);
         }
-        return expense;
+        return expense.get();
     }
 
     @Override
@@ -60,11 +61,7 @@ public class ExpenseServiceImp implements ExpenseService {
             @CacheEvict(value = "expense", key = "#id")
     })
     public Expense updateExpenseById(long id, Map<String, Object> fields, long userId) {
-        Expense expense = expenseRepository.findById(id).orElseThrow();
-        if (expense.getUser().getId() != userId) {
-            throw new EntityNotFoundException(id, Expense.class);
-        }
-
+        Expense expense = getExpenseById(id, userId);
         try {
             fields.forEach((key, value) -> {
                 Field field = ReflectionUtils.findField(Expense.class, key);
@@ -85,10 +82,7 @@ public class ExpenseServiceImp implements ExpenseService {
             @CacheEvict(value = "expense", key = "#id")
     })
     public void deleteExpenseById(long id, long userId) {
-        Expense expense = expenseRepository.findById(id).orElseThrow();
-        if (expense.getUser().getId() != userId) {
-            throw new EntityNotFoundException(id, Expense.class);
-        }
+        Expense expense = getExpenseById(id, userId);
         expenseRepository.delete(expense);
     }
 }

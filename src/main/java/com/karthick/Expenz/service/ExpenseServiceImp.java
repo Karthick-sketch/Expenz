@@ -4,7 +4,6 @@ import com.karthick.Expenz.entity.Expense;
 import com.karthick.Expenz.exception.BadRequestException;
 import com.karthick.Expenz.exception.EntityNotFoundException;
 import com.karthick.Expenz.repository.ExpenseRepository;
-import com.karthick.Expenz.security.SecurityConstants;
 import lombok.AllArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -36,17 +35,11 @@ public class ExpenseServiceImp implements ExpenseService {
     @Override
     @Cacheable(value = "expenses:user", key = "#userId")
     public List<Expense> getExpensesByUsedId(long userId) {
-        if (userId == SecurityConstants.NOT_FOUND) {
-            throw new BadRequestException("something wrong at authentication");
-        }
         return expenseRepository.findByUserId(userId);
     }
 
     @Override
     public Expense createNewExpense(Expense expense, long userId) {
-        if (userId == SecurityConstants.NOT_FOUND) {
-            throw new BadRequestException("something wrong at authentication");
-        }
         try {
             expense.setUser(userService.getUserById(userId));
             return expenseRepository.save(expense);

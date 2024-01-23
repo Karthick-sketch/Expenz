@@ -19,8 +19,18 @@ public class ExpensesController {
     private UserSession userSession;
 
     @GetMapping("/all")
-    public ResponseEntity<List<Expense>> getUserExpenses() {
-        return new ResponseEntity<>(expenseService.getExpensesByUsedId(userSession.getAuthenticatedUserId()), HttpStatus.OK);
+    public ResponseEntity<List<Expense>> getUserExpenses(@RequestParam int month, int year) {
+        return new ResponseEntity<>(expenseService.fetchExpensesByMonthAndYear(month, year, userSession.getAuthenticatedUserId()), HttpStatus.OK);
+    }
+
+    @GetMapping("/expenses")
+    public ResponseEntity<List<Expense>> getExpensesByMonth(@RequestParam int month, int year) {
+        return new ResponseEntity<>(expenseService.fetchExpensesByTypeMonthAndYear(false, month, year, userSession.getAuthenticatedUserId()), HttpStatus.OK);
+    }
+
+    @GetMapping("/incomes")
+    public ResponseEntity<List<Expense>> getIncomesByMonth(@RequestParam int month, int year) {
+        return new ResponseEntity<>(expenseService.fetchExpensesByTypeMonthAndYear(true, month, year, userSession.getAuthenticatedUserId()), HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
@@ -40,6 +50,7 @@ public class ExpensesController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<HttpStatus> deleteExpenseById(@PathVariable("id") long id) {
+        expenseService.deleteExpenseById(id, userSession.getAuthenticatedUserId());
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

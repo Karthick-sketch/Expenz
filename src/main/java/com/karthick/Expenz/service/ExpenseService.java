@@ -8,7 +8,9 @@ import java.util.Map;
 public interface ExpenseService {
     Expense getExpenseById(long id, long userId);
 
-    List<Expense> getExpensesByUsedId(long userId);
+    List<Expense> fetchExpensesByMonthAndYear(int month, int year, long userId);
+
+    List<Expense> fetchExpensesByTypeMonthAndYear(boolean isItIncome, int month, int year, long userId);
 
     Expense createNewExpense(Expense expense, long userId);
 

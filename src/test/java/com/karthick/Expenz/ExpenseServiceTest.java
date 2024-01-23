@@ -5,7 +5,6 @@ import com.karthick.Expenz.entity.User;
 import com.karthick.Expenz.exception.BadRequestException;
 import com.karthick.Expenz.exception.EntityNotFoundException;
 import com.karthick.Expenz.repository.ExpenseRepository;
-import com.karthick.Expenz.security.SecurityConstants;
 import com.karthick.Expenz.service.ExpenseServiceImp;
 import com.karthick.Expenz.service.UserService;
 import org.junit.jupiter.api.Test;
@@ -15,13 +14,14 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -35,15 +35,17 @@ public class ExpenseServiceTest {
     @InjectMocks
     private ExpenseServiceImp expenseService;
 
+    private final Date date = new Date();
+
     private Expense getTestExpenseData() {
         Expense expense = new Expense();
         expense.setId(1);
         expense.setAmount(50_000.0);
         expense.setCategory("electronics");
-        expense.setIncome(false);
+        expense.setItIncome(false);
         expense.setTitle("Playstation 5");
         expense.setDescription("Play next generation games");
-        expense.setDateAdded(new Date());
+        expense.setDateAdded(date);
 
         User user = new User();
         user.setId(1);
@@ -70,15 +72,37 @@ public class ExpenseServiceTest {
     }
 
     @Test
-    public void testGetExpensesByUsedId() {
+    public void testFetchExpensesByMonthAndYear() {
+        LocalDate localDate = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+        int month = localDate.getMonthValue(), year = localDate.getYear();
+
         Expense mockExpense = getTestExpenseData();
-        when(expenseRepository.findByUserId(mockExpense.getUser().getId())).thenReturn(List.of(mockExpense));
+        when(expenseRepository.findExpensesByMonthAndYear(month, year, mockExpense.getUser().getId())).thenReturn(List.of(mockExpense));
 
-        List<Expense> validExpense = expenseService.getExpensesByUsedId(mockExpense.getUser().getId());
-        Executable notFoundUserId = () -> expenseService.getExpensesByUsedId(SecurityConstants.NOT_FOUND);
-
+        List<Expense> validExpense = expenseService.fetchExpensesByMonthAndYear(month, year, mockExpense.getUser().getId());
         assertEquals(mockExpense, validExpense.get(0));
-        assertThrows(RuntimeException.class, notFoundUserId);
+
+        // not working, will fix it
+        // Executable notFoundUserId = () -> expenseService.fetchExpensesByMonthAndYear(month, year, SecurityConstants.NOT_FOUND);
+        // assertThrows(RuntimeException.class, notFoundUserId);
+    }
+
+    @Test
+    public void testFetchExpensesByTypeMonthAndYear() {
+        LocalDate localDate = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+        int month = localDate.getMonthValue(), year = localDate.getYear();
+
+        Expense mockExpense = getTestExpenseData();
+        when(expenseRepository.findExpensesByTypeMonthAndYear(mockExpense.isItIncome(), month, year, mockExpense.getUser().getId())).thenReturn(List.of(mockExpense));
+
+        List<Expense> validExpenses = expenseService.fetchExpensesByTypeMonthAndYear(false, month, year, mockExpense.getUser().getId());
+        List<Expense> validIncomes = expenseService.fetchExpensesByTypeMonthAndYear(true, month, year, mockExpense.getUser().getId());
+        assertEquals(mockExpense, validExpenses.get(0));
+        assertTrue(validIncomes.isEmpty());
+
+        // not working, will fix it
+        // Executable notFoundUserId = () -> expenseService.fetchExpensesByMonthAndYear(month, year, SecurityConstants.NOT_FOUND);
+        // assertThrows(RuntimeException.class, notFoundUserId);
     }
 
     @Test

@@ -33,9 +33,15 @@ public class ExpenseServiceImp implements ExpenseService {
     }
 
     @Override
-    @Cacheable(value = "expenses:user", key = "#userId")
-    public List<Expense> getExpensesByUsedId(long userId) {
-        return expenseRepository.findByUserId(userId);
+    @Cacheable(value = "expenses:user-month-year", key = "{#userId, #month, #year}")
+    public List<Expense> fetchExpensesByMonthAndYear(int month, int year, long userId) {
+        return expenseRepository.findExpensesByMonthAndYear(month, year, userId);
+    }
+
+    @Override
+    @Cacheable(value = "expenses:user-type-month-year", key = "{#userId, #isItIncome, #month, #year}")
+    public List<Expense> fetchExpensesByTypeMonthAndYear(boolean isItIncome, int month, int year, long userId) {
+        return expenseRepository.findExpensesByTypeMonthAndYear(isItIncome, month, year, userId);
     }
 
     @Override
@@ -50,7 +56,8 @@ public class ExpenseServiceImp implements ExpenseService {
 
     @Override
     @Caching(evict = {
-            @CacheEvict(value = "expenses:user", key = "#userId"),
+            @CacheEvict(value = "expenses:user-month-year", key = "{#userId, '*'}"), // not working, will fix it
+            @CacheEvict(value = "expenses:user-type-month-year", key = "{#userId, '*'}"), // not working, will fix it
             @CacheEvict(value = "expense", key = "#id")
     })
     public Expense updateExpenseById(long id, Map<String, Object> fields, long userId) {
@@ -71,11 +78,11 @@ public class ExpenseServiceImp implements ExpenseService {
 
     @Override
     @Caching(evict = {
-            @CacheEvict(value = "expenses:user", key = "#userId"),
+            @CacheEvict(value = "expenses:user-month-year", key = "{#userId, '*'}"), // not working, will fix it
+            @CacheEvict(value = "expenses:user-type-month-year", key = "{#userId, '*'}"), // not working, will fix it
             @CacheEvict(value = "expense", key = "#id")
     })
     public void deleteExpenseById(long id, long userId) {
-        Expense expense = getExpenseById(id, userId);
-        expenseRepository.delete(expense);
+        expenseRepository.delete(getExpenseById(id, userId));
     }
 }

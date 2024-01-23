@@ -153,10 +153,24 @@ curl --location --request DELETE 'localhost:8080/user/{{user-id}}' \
 
 ### Expenses APIs
 
-Fetch all Expense records
+Fetch Expense and Income records by month and year
 
 ```shell
-curl --location 'localhost:8080/expense/all' \
+curl --location 'localhost:8080/expense/all?month=1&year=2024' \
+--header 'Authorization: Bearer {{JWT Token}}'
+```
+
+Fetch Expense records by month and year
+
+```shell
+curl --location 'localhost:8080/expense/expenses?month=1&year=2024' \
+--header 'Authorization: Bearer {{JWT Token}}'
+```
+
+Fetch Income records by month and year
+
+```shell
+curl --location 'localhost:8080/expense/incomes?month=1&year=2024' \
 --header 'Authorization: Bearer {{JWT Token}}'
 ```
 

@@ -12,24 +12,29 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/expense")
+@RequestMapping("/expenz")
 @AllArgsConstructor
 public class ExpensesController {
     private ExpenseService expenseService;
     private UserSession userSession;
 
     @GetMapping("/all")
-    public ResponseEntity<List<Expense>> getUserExpenses(@RequestParam int month, int year) {
+    public ResponseEntity<List<Expense>> getAllExpenses() {
+        return new ResponseEntity<>(expenseService.fetchAllExpensesByUserId(userSession.getAuthenticatedUserId()), HttpStatus.OK);
+    }
+
+    @GetMapping
+    public ResponseEntity<List<Expense>> getAllExpensesByMonthAndYear(@RequestParam int month, int year) {
         return new ResponseEntity<>(expenseService.fetchExpensesByMonthAndYear(month, year, userSession.getAuthenticatedUserId()), HttpStatus.OK);
     }
 
     @GetMapping("/expenses")
-    public ResponseEntity<List<Expense>> getExpensesByMonth(@RequestParam int month, int year) {
+    public ResponseEntity<List<Expense>> getExpensesByMonthAndYear(@RequestParam int month, int year) {
         return new ResponseEntity<>(expenseService.fetchExpensesByTypeMonthAndYear(false, month, year, userSession.getAuthenticatedUserId()), HttpStatus.OK);
     }
 
     @GetMapping("/incomes")
-    public ResponseEntity<List<Expense>> getIncomesByMonth(@RequestParam int month, int year) {
+    public ResponseEntity<List<Expense>> getIncomesByMonthAndYear(@RequestParam int month, int year) {
         return new ResponseEntity<>(expenseService.fetchExpensesByTypeMonthAndYear(true, month, year, userSession.getAuthenticatedUserId()), HttpStatus.OK);
     }
 

@@ -7,6 +7,8 @@ import org.springframework.data.jpa.repository.Query;
 import java.util.List;
 
 public interface ExpenseRepository extends JpaRepository<Expense, Long> {
+    List<Expense> findByUserId(long userId);
+
     @Query(value = "SELECT * FROM expenz.expenses WHERE MONTH(date_added) = ? AND YEAR(date_added) = ? AND user_id = ?", nativeQuery = true)
     List<Expense> findExpensesByMonthAndYear(int month, int year, long userId);
 

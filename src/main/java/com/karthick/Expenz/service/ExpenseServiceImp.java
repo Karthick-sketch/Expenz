@@ -33,6 +33,12 @@ public class ExpenseServiceImp implements ExpenseService {
     }
 
     @Override
+    @Cacheable(value = "expenses:user", key = "#userId")
+    public List<Expense> fetchAllExpensesByUserId(long userId) {
+        return expenseRepository.findByUserId(userId);
+    }
+
+    @Override
     // not working, will fix it
     // @Cacheable(value = "expenses:user-month-year", key = "{#userId, #month, #year}")
     public List<Expense> fetchExpensesByMonthAndYear(int month, int year, long userId) {
@@ -57,12 +63,7 @@ public class ExpenseServiceImp implements ExpenseService {
     }
 
     @Override
-    @Caching(evict = {
-            // not working, will fix it
-            // @CacheEvict(value = "expenses:user-month-year", key = "{#userId, '*'}"),
-            // @CacheEvict(value = "expenses:user-type-month-year", key = "{#userId, '*'}"),
-            @CacheEvict(value = "expense", key = "#id")
-    })
+    @Caching(evict = {@CacheEvict(value = "expense", key = "#id"), @CacheEvict(value = "expenses:user", key = "#userId")})
     public Expense updateExpenseById(long id, Map<String, Object> fields, long userId) {
         Expense expense = getExpenseById(id, userId);
         try {
@@ -80,12 +81,7 @@ public class ExpenseServiceImp implements ExpenseService {
     }
 
     @Override
-    @Caching(evict = {
-            // not working, will fix it
-            // @CacheEvict(value = "expenses:user-month-year", key = "{#userId, '*'}"),
-            // @CacheEvict(value = "expenses:user-type-month-year", key = "{#userId, '*'}"),
-            @CacheEvict(value = "expense", key = "#id")
-    })
+    @Caching(evict = {@CacheEvict(value = "expense", key = "#id"), @CacheEvict(value = "expenses:user", key = "#userId")})
     public void deleteExpenseById(long id, long userId) {
         expenseRepository.delete(getExpenseById(id, userId));
     }

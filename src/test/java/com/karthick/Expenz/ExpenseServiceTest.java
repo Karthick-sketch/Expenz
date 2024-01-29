@@ -49,9 +49,9 @@ public class ExpenseServiceTest {
 
         User user = new User();
         user.setId(1);
-        user.setUsername("Kang");
-        user.setEmail("kang@marvel.com");
-        user.setPassword("conqueror");
+        user.setUsername("Michael De Santa");
+        user.setEmail("michaeldesanta@eyefind.com");
+        user.setPassword("gta5");
         expense.setUser(user);
 
         return expense;
@@ -69,6 +69,15 @@ public class ExpenseServiceTest {
         assertEquals(mockExpense, validExpense);
         assertThrows(EntityNotFoundException.class, wrongId);
         assertThrows(EntityNotFoundException.class, wrongUserId);
+    }
+
+    @Test
+    public void testFetchAllExpensesByUserId() {
+        Expense mockExpense = getTestExpenseData();
+        when(expenseRepository.findByUserId(mockExpense.getUser().getId())).thenReturn(List.of(mockExpense));
+
+        List<Expense> validExpense = expenseService.fetchAllExpensesByUserId(mockExpense.getUser().getId());
+        assertEquals(mockExpense, validExpense.get(0));
     }
 
     @Test

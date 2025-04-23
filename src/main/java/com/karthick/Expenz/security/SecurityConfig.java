@@ -18,21 +18,27 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 @AllArgsConstructor
 public class SecurityConfig {
-    private final CustomAuthenticationManager customAuthenticationManager;
+  private final CustomAuthenticationManager customAuthenticationManager;
 
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        AuthenticationFilter authenticationFilter = new AuthenticationFilter(customAuthenticationManager);
-        authenticationFilter.setFilterProcessesUrl("/authenticate");
+  @Bean
+  public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    AuthenticationFilter authenticationFilter =
+        new AuthenticationFilter(customAuthenticationManager);
+    authenticationFilter.setFilterProcessesUrl("/authenticate");
 
-        http.csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(authorize -> authorize.requestMatchers(HttpMethod.POST, SecurityConstants.REGISTER_PATH).permitAll())
-                .authorizeHttpRequests(authorize -> authorize.anyRequest().authenticated())
-                .addFilterBefore(new ExceptionHandlerFilter(), AuthenticationFilter.class)
-                .addFilter(authenticationFilter)
-                .addFilterAfter(new JWTAuthenticationFilter(), AuthenticationFilter.class)
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+    http.csrf(AbstractHttpConfigurer::disable)
+        .authorizeHttpRequests(
+            authorize ->
+                authorize
+                    .requestMatchers(HttpMethod.POST, SecurityConstants.REGISTER_PATH)
+                    .permitAll())
+        .authorizeHttpRequests(authorize -> authorize.anyRequest().authenticated())
+        .addFilterBefore(new ExceptionHandlerFilter(), AuthenticationFilter.class)
+        .addFilter(authenticationFilter)
+        .addFilterAfter(new JWTAuthenticationFilter(), AuthenticationFilter.class)
+        .sessionManagement(
+            session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
-        return http.build();
-    }
+    return http.build();
+  }
 }

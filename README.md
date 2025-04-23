@@ -105,11 +105,11 @@ mysql -u user -ppassword
 Create a new User record
 
 ```shell
-curl --location 'localhost:8080/user/register' \
+curl --location --request POST 'localhost:8080/user/register' \
 --header 'Accept: application/json' \
 --header 'Content-Type: application/json' \
 --data-raw '{
-    "name" : "Kang",
+    "username" : "Kang",
     "email" : "kang@marvel.com",
     "password" : "kangtheconqueror"
 }'
@@ -118,10 +118,10 @@ curl --location 'localhost:8080/user/register' \
 Fetch the authenticated user **JWT** token. Then copy the token from response header.
 
 ```shell
-curl --location 'localhost:8080/authenticate' \
+curl --location --request POST 'localhost:8080/authenticate' \
 --header 'Content-Type: application/json' \
 --data '{
-    "name" : "Kang",
+    "username" : "Kang",
     "password" : "kangtheconqueror"
 }'
 ```

@@ -10,14 +10,14 @@ import org.springframework.stereotype.Component;
 @Component
 @AllArgsConstructor
 public class UserSession {
-    private UserService userService;
+  private UserService userService;
 
-    public long getAuthenticatedUserId() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication.isAuthenticated()) {
-            User user = userService.getUserByUsername(authentication.getName());
-            return user.getId();
-        }
-        return SecurityConstants.NOT_FOUND;
+  public long getAuthenticatedUserId() {
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    if (authentication.isAuthenticated()) {
+      User user = userService.findUserByUsername(authentication.getName());
+      return user.getId();
     }
+    return SecurityConstants.NOT_FOUND;
+  }
 }

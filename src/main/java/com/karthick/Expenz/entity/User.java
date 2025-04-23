@@ -13,21 +13,23 @@ import java.util.List;
 @NoArgsConstructor
 @RequiredArgsConstructor
 public class User implements Serializable {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private long id;
 
-    @NonNull
-    @Column(name = "username", nullable = false, unique = true)
-    private String username;
-    @NonNull
-    @Column(name = "email", nullable = false, unique = true)
-    private String email;
-    @NonNull
-    @Column(name = "password", nullable = false)
-    private String password;
+  @NonNull
+  @Column(name = "username", nullable = false, unique = true)
+  private String username;
 
-    @JsonIgnore
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    private List<Expense> expenses;
+  @NonNull
+  @Column(name = "email", nullable = false, unique = true)
+  private String email;
+
+  @NonNull
+  @Column(name = "password", nullable = false)
+  private String password;
+
+  @JsonIgnore
+  @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+  private List<Expense> expenses;
 }

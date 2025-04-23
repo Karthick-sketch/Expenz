@@ -12,12 +12,12 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @EnableCaching
 @EnableAspectJAutoProxy(proxyTargetClass = true)
 public class ExpenzApplication {
-	public static void main(String[] args) {
-		SpringApplication.run(ExpenzApplication.class, args);
-	}
+  public static void main(String[] args) {
+    SpringApplication.run(ExpenzApplication.class, args);
+  }
 
-	@Bean
-	public PasswordEncoder passwordEncoder() {
-		return new BCryptPasswordEncoder();
-	}
+  @Bean
+  public PasswordEncoder passwordEncoder() {
+    return new BCryptPasswordEncoder();
+  }
 }

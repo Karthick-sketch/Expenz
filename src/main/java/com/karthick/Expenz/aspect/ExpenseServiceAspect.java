@@ -10,13 +10,13 @@ import org.springframework.stereotype.Component;
 @Aspect
 @Component
 public class ExpenseServiceAspect {
-    @Before("execution(* com.karthick.Expenz.service.ExpenseService.getExpensesByUsedId(long))")
+    @Before("execution(* com.karthick.Expenz.service.ExpenseService.findExpense(long))")
     public void verifyUserIdInGetExpensesByUsedIdMethod(JoinPoint joinPoint) {
         validateUserId((long) joinPoint.getArgs()[0]);
         System.out.println("Before advice from Expense.getExpensesByUsedId(long) method");
     }
 
-    @Before("execution(* com.karthick.Expenz.service.ExpenseService.createNewExpense(..))")
+    @Before("execution(* com.karthick.Expenz.service.ExpenseService.createExpense(..))")
     public void verifyUserIdInCreateNewExpenseMethod(JoinPoint joinPoint) {
         validateUserId((long) joinPoint.getArgs()[1]);
         System.out.println("Before advice from Expense.createNewExpense(Expense, long) method");
